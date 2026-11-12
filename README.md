@@ -21,7 +21,9 @@ Add your own services to scrape with a single env var.
 | Variable | Default | Description |
 |---|---|---|
 | `PORT` | `9090` | Keep this set to `9090` so private networking and Grafana wiring stay correct |
-| `SCRAPE_TARGETS` | _(empty)_ | Space separated list of `label=host:port` targets to scrape |
+| `SCRAPE_TARGETS` | _(empty)_ | Space separated list of `label=host:port` (or `label=dns+host:port`) targets to scrape |
+| `SCRAPE_DNS_RECORD_TYPE` | `AAAA` | DNS record type looked up for `dns+` targets: `AAAA` (IPv6) or `A` (IPv4) |
+| `SCRAPE_DNS_REFRESH_INTERVAL` | `30s` | How often `dns+` targets are looked up again |
 | `SCRAPE_INTERVAL` | `15s` | How often Prometheus scrapes targets |
 | `EVALUATION_INTERVAL` | `15s` | How often rules are evaluated |
 | `RETENTION_TIME` | `15d` | How long to keep metrics data |
@@ -39,6 +41,16 @@ myapp=myapp.railway.internal:8080 worker=worker.railway.internal:3000
 Each `label=host:port` pair becomes a separate scrape job. Prefer Railway private hostnames (`.railway.internal`).
 
 Redeploy and Prometheus picks up the new targets.
+
+### Services with more than one replica
+
+A plain `host:port` target is one target: every scrape lands on whichever replica the connection reaches, so the replicas' counters interleave and `rate()` reads each switch as a counter reset. Prefix the host with `dns+` to scrape every replica on its own:
+
+```
+api=dns+api.railway.internal:3000
+```
+
+Prometheus resolves the name every `SCRAPE_DNS_REFRESH_INTERVAL` (a `dns_sd_configs` job) and scrapes each address as its own target, labelled `instance="[<replica ip>]:3000"`. Replicas added or removed are picked up on the next lookup. Railway private DNS answers with one record per replica; use `SCRAPE_DNS_RECORD_TYPE=A` if the service only has IPv4 private networking.
 
 ---
 
