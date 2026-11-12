@@ -1,93 +1,6 @@
 {
-  "uid": "1mage-api",
-  "title": "1mage-api",
-  "tags": [
-    "1mage",
-    "api"
-  ],
-  "timezone": "browser",
-  "refresh": "30s",
-  "schemaVersion": 39,
-  "time": {
-    "from": "now-3h",
-    "to": "now"
-  },
-  "templating": {
-    "list": [
-      {
-        "name": "datasource",
-        "label": "Data source",
-        "type": "datasource",
-        "query": "prometheus",
-        "current": {}
-      },
-      {
-        "name": "job",
-        "type": "query",
-        "datasource": {
-          "type": "prometheus",
-          "uid": "${datasource}"
-        },
-        "query": {
-          "query": "label_values(up, job)",
-          "refId": "V"
-        },
-        "definition": "label_values(up, job)",
-        "current": {
-          "text": "api",
-          "value": "api"
-        },
-        "refresh": 1
-      },
-      {
-        "name": "instance",
-        "type": "query",
-        "datasource": {
-          "type": "prometheus",
-          "uid": "${datasource}"
-        },
-        "query": {
-          "query": "label_values(up{job=\"$job\"}, instance)",
-          "refId": "V"
-        },
-        "definition": "label_values(up{job=\"$job\"}, instance)",
-        "includeAll": true,
-        "multi": true,
-        "allValue": ".*",
-        "current": {
-          "text": "All",
-          "value": "$__all"
-        },
-        "refresh": 1
-      },
-      {
-        "name": "route",
-        "type": "query",
-        "datasource": {
-          "type": "prometheus",
-          "uid": "${datasource}"
-        },
-        "query": {
-          "query": "label_values(http_requests_total{job=\"$job\"}, route)",
-          "refId": "V"
-        },
-        "definition": "label_values(http_requests_total{job=\"$job\"}, route)",
-        "includeAll": true,
-        "multi": true,
-        "allValue": ".*",
-        "current": {
-          "text": "All",
-          "value": "$__all"
-        },
-        "refresh": 2
-      }
-    ]
-  },
   "panels": [
     {
-      "id": 1,
-      "type": "row",
-      "title": "Overview",
       "collapsed": false,
       "gridPos": {
         "h": 1,
@@ -95,35 +8,21 @@
         "x": 0,
         "y": 0
       },
-      "panels": []
+      "id": 1,
+      "panels": [],
+      "title": "Overview",
+      "type": "row"
     },
     {
-      "id": 2,
-      "type": "stat",
-      "title": "Requests / s",
-      "gridPos": {
-        "x": 0,
-        "y": 1,
-        "w": 4,
-        "h": 4
-      },
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "expr": "sum(rate(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\"$route\"}[$__rate_interval]))"
-        }
-      ],
       "fieldConfig": {
         "defaults": {
-          "unit": "reqps",
+          "color": {
+            "mode": "thresholds"
+          },
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -133,50 +32,50 @@
               }
             ]
           },
-          "color": {
-            "mode": "thresholds"
-          }
+          "unit": "reqps"
         },
         "overrides": []
       },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 1
+      },
+      "id": 2,
       "options": {
+        "colorMode": "value",
+        "graphMode": "area",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
           ]
         },
-        "graphMode": "area",
-        "colorMode": "value",
         "textMode": "value"
-      }
-    },
-    {
-      "id": 3,
-      "type": "stat",
-      "title": "5xx error rate",
-      "gridPos": {
-        "x": 4,
-        "y": 1,
-        "w": 4,
-        "h": 4
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
       },
       "targets": [
         {
-          "refId": "A",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "(sum(rate(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\"$route\", status_code=~\"5..\"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\"$route\"}[$__rate_interval])), 1e-9)"
+          "expr": "sum(rate(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\"$route\"}[$__rate_interval]))",
+          "refId": "A"
         }
       ],
+      "title": "Requests / s",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
       "fieldConfig": {
         "defaults": {
-          "unit": "percentunit",
+          "color": {
+            "mode": "thresholds"
+          },
           "decimals": 2,
           "thresholds": {
             "mode": "absolute",
@@ -195,50 +94,50 @@
               }
             ]
           },
-          "color": {
-            "mode": "thresholds"
-          }
+          "unit": "percentunit"
         },
         "overrides": []
       },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 1
+      },
+      "id": 3,
       "options": {
+        "colorMode": "value",
+        "graphMode": "area",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
           ]
         },
-        "graphMode": "area",
-        "colorMode": "value",
         "textMode": "value"
-      }
-    },
-    {
-      "id": 4,
-      "type": "stat",
-      "title": "P95 latency",
-      "gridPos": {
-        "x": 8,
-        "y": 1,
-        "w": 4,
-        "h": 4
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
       },
       "targets": [
         {
-          "refId": "A",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{job=\"$job\", instance=~\"$instance\", route=~\"$route\"}[$__rate_interval])))"
+          "expr": "(sum(rate(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\"$route\", status_code=~\"5..\"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\"$route\"}[$__rate_interval])), 1e-9)",
+          "refId": "A"
         }
       ],
+      "title": "5xx error rate",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
       "fieldConfig": {
         "defaults": {
-          "unit": "s",
+          "color": {
+            "mode": "thresholds"
+          },
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -256,50 +155,50 @@
               }
             ]
           },
-          "color": {
-            "mode": "thresholds"
-          }
+          "unit": "s"
         },
         "overrides": []
       },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 1
+      },
+      "id": 4,
       "options": {
+        "colorMode": "value",
+        "graphMode": "area",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
           ]
         },
-        "graphMode": "area",
-        "colorMode": "value",
         "textMode": "value"
-      }
-    },
-    {
-      "id": 5,
-      "type": "stat",
-      "title": "P99 latency",
-      "gridPos": {
-        "x": 12,
-        "y": 1,
-        "w": 4,
-        "h": 4
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
       },
       "targets": [
         {
-          "refId": "A",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "histogram_quantile(0.99, sum by (le) (rate(http_request_duration_seconds_bucket{job=\"$job\", instance=~\"$instance\", route=~\"$route\"}[$__rate_interval])))"
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{job=\"$job\", instance=~\"$instance\", route=~\"$route\"}[$__rate_interval])))",
+          "refId": "A"
         }
       ],
+      "title": "P95 latency",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
       "fieldConfig": {
         "defaults": {
-          "unit": "s",
+          "color": {
+            "mode": "thresholds"
+          },
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -317,51 +216,51 @@
               }
             ]
           },
-          "color": {
-            "mode": "thresholds"
-          }
+          "unit": "s"
         },
         "overrides": []
       },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 1
+      },
+      "id": 5,
       "options": {
+        "colorMode": "value",
+        "graphMode": "area",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
           ]
         },
-        "graphMode": "area",
-        "colorMode": "value",
         "textMode": "value"
-      }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(http_request_duration_seconds_bucket{job=\"$job\", instance=~\"$instance\", route=~\"$route\"}[$__rate_interval])))",
+          "refId": "A"
+        }
+      ],
+      "title": "P99 latency",
+      "type": "stat"
     },
     {
-      "id": 6,
-      "type": "stat",
-      "title": "Targets up",
-      "gridPos": {
-        "x": 16,
-        "y": 1,
-        "w": 4,
-        "h": 4
-      },
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
       "description": "Scrape targets currently answering /metrics.",
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "expr": "sum(up{job=\"$job\", instance=~\"$instance\"})"
-        }
-      ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "color": {
+            "mode": "thresholds"
+          },
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -375,51 +274,51 @@
               }
             ]
           },
-          "color": {
-            "mode": "thresholds"
-          }
+          "unit": "short"
         },
         "overrides": []
       },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 1
+      },
+      "id": 6,
       "options": {
+        "colorMode": "value",
+        "graphMode": "area",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
           ]
         },
-        "graphMode": "area",
-        "colorMode": "value",
         "textMode": "value"
-      }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "sum(up{job=\"$job\", instance=~\"$instance\"})",
+          "refId": "A"
+        }
+      ],
+      "title": "Targets up",
+      "type": "stat"
     },
     {
-      "id": 7,
-      "type": "stat",
-      "title": "Uptime",
-      "gridPos": {
-        "x": 20,
-        "y": 1,
-        "w": 4,
-        "h": 4
-      },
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
       "description": "Since the most recent process start; a drop means a restart or deploy.",
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "expr": "min(time() - process_start_time_seconds{job=\"$job\", instance=~\"$instance\"})"
-        }
-      ],
       "fieldConfig": {
         "defaults": {
-          "unit": "s",
+          "color": {
+            "mode": "thresholds"
+          },
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -433,27 +332,41 @@
               }
             ]
           },
-          "color": {
-            "mode": "thresholds"
-          }
+          "unit": "s"
         },
         "overrides": []
       },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 1
+      },
+      "id": 7,
       "options": {
+        "colorMode": "value",
+        "graphMode": "area",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
           ]
         },
-        "graphMode": "area",
-        "colorMode": "value",
         "textMode": "value"
-      }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "min(time() - process_start_time_seconds{job=\"$job\", instance=~\"$instance\"})",
+          "refId": "A"
+        }
+      ],
+      "title": "Uptime",
+      "type": "stat"
     },
     {
-      "id": 8,
-      "type": "row",
-      "title": "Traffic",
       "collapsed": false,
       "gridPos": {
         "h": 1,
@@ -461,36 +374,18 @@
         "x": 0,
         "y": 5
       },
-      "panels": []
+      "id": 8,
+      "panels": [],
+      "title": "Traffic",
+      "type": "row"
     },
     {
-      "id": 9,
-      "type": "timeseries",
-      "title": "Requests / s by status code",
-      "gridPos": {
-        "x": 0,
-        "y": 6,
-        "w": 12,
-        "h": 8
-      },
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "expr": "sum by (status_code) (rate(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\"$route\"}[$__rate_interval]))",
-          "legendFormat": "{{status_code}}"
-        }
-      ],
       "fieldConfig": {
         "defaults": {
-          "unit": "reqps",
           "custom": {
             "fillOpacity": 10,
             "lineWidth": 1,
@@ -498,7 +393,8 @@
             "stacking": {
               "mode": "normal"
             }
-          }
+          },
+          "unit": "reqps"
         },
         "overrides": [
           {
@@ -510,8 +406,8 @@
               {
                 "id": "color",
                 "value": {
-                  "mode": "fixed",
-                  "fixedColor": "red"
+                  "fixedColor": "red",
+                  "mode": "fixed"
                 }
               }
             ]
@@ -525,8 +421,8 @@
               {
                 "id": "color",
                 "value": {
-                  "mode": "fixed",
-                  "fixedColor": "orange"
+                  "fixedColor": "orange",
+                  "mode": "fixed"
                 }
               }
             ]
@@ -540,8 +436,8 @@
               {
                 "id": "color",
                 "value": {
-                  "mode": "fixed",
-                  "fixedColor": "purple"
+                  "fixedColor": "purple",
+                  "mode": "fixed"
                 }
               }
             ]
@@ -555,8 +451,8 @@
               {
                 "id": "color",
                 "value": {
-                  "mode": "fixed",
-                  "fixedColor": "green"
+                  "fixedColor": "green",
+                  "mode": "fixed"
                 }
               }
             ]
@@ -570,83 +466,65 @@
               {
                 "id": "color",
                 "value": {
-                  "mode": "fixed",
-                  "fixedColor": "blue"
+                  "fixedColor": "blue",
+                  "mode": "fixed"
                 }
               }
             ]
           }
         ]
       },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 6
+      },
+      "id": 9,
       "options": {
         "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
           "calcs": [
             "mean",
             "max",
             "lastNotNull"
-          ]
+          ],
+          "displayMode": "table",
+          "placement": "bottom"
         },
         "tooltip": {
           "mode": "multi",
           "sort": "desc"
         }
-      }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "sum by (status_code) (rate(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\"$route\"}[$__rate_interval]))",
+          "legendFormat": "{{status_code}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Requests / s by status code",
+      "type": "timeseries"
     },
     {
-      "id": 10,
-      "type": "timeseries",
-      "title": "Error ratio",
-      "gridPos": {
-        "x": 12,
-        "y": 6,
-        "w": 12,
-        "h": 8
-      },
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "expr": "(sum(rate(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\"$route\", status_code=~\"5..\"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\"$route\"}[$__rate_interval])), 1e-9)",
-          "legendFormat": "5xx"
-        },
-        {
-          "refId": "B",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "expr": "(sum(rate(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\"$route\", status_code=~\"4..\", status_code!=\"499\"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\"$route\"}[$__rate_interval])), 1e-9)",
-          "legendFormat": "4xx (excl. 499)"
-        },
-        {
-          "refId": "C",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "expr": "(sum(rate(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\"$route\", status_code=\"499\"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\"$route\"}[$__rate_interval])), 1e-9)",
-          "legendFormat": "499 client closed"
-        }
-      ],
       "fieldConfig": {
         "defaults": {
-          "unit": "percentunit",
           "custom": {
+            "axisSoftMax": 0.05,
             "fillOpacity": 10,
             "lineWidth": 1,
-            "showPoints": "never",
-            "axisSoftMax": 0.05
+            "showPoints": "never"
           },
-          "min": 0
+          "min": 0,
+          "unit": "percentunit"
         },
         "overrides": [
           {
@@ -658,8 +536,8 @@
               {
                 "id": "color",
                 "value": {
-                  "mode": "fixed",
-                  "fixedColor": "red"
+                  "fixedColor": "red",
+                  "mode": "fixed"
                 }
               }
             ]
@@ -673,8 +551,8 @@
               {
                 "id": "color",
                 "value": {
-                  "mode": "fixed",
-                  "fixedColor": "orange"
+                  "fixedColor": "orange",
+                  "mode": "fixed"
                 }
               }
             ]
@@ -688,86 +566,121 @@
               {
                 "id": "color",
                 "value": {
-                  "mode": "fixed",
-                  "fixedColor": "purple"
+                  "fixedColor": "purple",
+                  "mode": "fixed"
                 }
               }
             ]
           }
         ]
       },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 6
+      },
+      "id": 10,
       "options": {
         "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
           "calcs": [
             "mean",
             "max",
             "lastNotNull"
-          ]
+          ],
+          "displayMode": "table",
+          "placement": "bottom"
         },
         "tooltip": {
           "mode": "multi",
           "sort": "desc"
         }
-      }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "(sum(rate(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\"$route\", status_code=~\"5..\"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\"$route\"}[$__rate_interval])), 1e-9)",
+          "legendFormat": "5xx",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "(sum(rate(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\"$route\", status_code=~\"4..\", status_code!=\"499\"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\"$route\"}[$__rate_interval])), 1e-9)",
+          "legendFormat": "4xx (excl. 499)",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "(sum(rate(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\"$route\", status_code=\"499\"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\"$route\"}[$__rate_interval])), 1e-9)",
+          "legendFormat": "499 client closed",
+          "refId": "C"
+        }
+      ],
+      "title": "Error ratio",
+      "type": "timeseries"
     },
     {
-      "id": 11,
-      "type": "timeseries",
-      "title": "Requests / s by route (top 10)",
-      "gridPos": {
-        "x": 0,
-        "y": 14,
-        "w": 24,
-        "h": 9
-      },
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 1,
+            "showPoints": "never"
+          },
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 14
+      },
+      "id": 11,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "right"
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
       "targets": [
         {
-          "refId": "A",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
           "expr": "sum by (route) (rate(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\"$route\"}[$__rate_interval])) and on (route) topk(10, sum by (route) (increase(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\"$route\"}[$__range])))",
-          "legendFormat": "{{route}}"
+          "legendFormat": "{{route}}",
+          "refId": "A"
         }
       ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "reqps",
-          "custom": {
-            "fillOpacity": 10,
-            "lineWidth": 1,
-            "showPoints": "never"
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "right",
-          "calcs": [
-            "mean",
-            "max",
-            "lastNotNull"
-          ]
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      }
+      "title": "Requests / s by route (top 10)",
+      "type": "timeseries"
     },
     {
-      "id": 12,
-      "type": "row",
-      "title": "Latency",
       "collapsed": false,
       "gridPos": {
         "h": 1,
@@ -775,250 +688,250 @@
         "x": 0,
         "y": 23
       },
-      "panels": []
+      "id": 12,
+      "panels": [],
+      "title": "Latency",
+      "type": "row"
     },
     {
-      "id": 13,
-      "type": "timeseries",
-      "title": "Latency percentiles",
-      "gridPos": {
-        "x": 0,
-        "y": 24,
-        "w": 12,
-        "h": 8
-      },
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 1,
+            "showPoints": "never"
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 24
+      },
+      "id": 13,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
       "targets": [
         {
-          "refId": "A",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
           "expr": "histogram_quantile(0.5, sum by (le) (rate(http_request_duration_seconds_bucket{job=\"$job\", instance=~\"$instance\", route=~\"$route\"}[$__rate_interval])))",
-          "legendFormat": "p50"
+          "legendFormat": "p50",
+          "refId": "A"
         },
         {
-          "refId": "B",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
           "expr": "histogram_quantile(0.9, sum by (le) (rate(http_request_duration_seconds_bucket{job=\"$job\", instance=~\"$instance\", route=~\"$route\"}[$__rate_interval])))",
-          "legendFormat": "p90"
+          "legendFormat": "p90",
+          "refId": "B"
         },
         {
-          "refId": "C",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
           "expr": "histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{job=\"$job\", instance=~\"$instance\", route=~\"$route\"}[$__rate_interval])))",
-          "legendFormat": "p95"
+          "legendFormat": "p95",
+          "refId": "C"
         },
         {
-          "refId": "D",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
           "expr": "histogram_quantile(0.99, sum by (le) (rate(http_request_duration_seconds_bucket{job=\"$job\", instance=~\"$instance\", route=~\"$route\"}[$__rate_interval])))",
-          "legendFormat": "p99"
+          "legendFormat": "p99",
+          "refId": "D"
         }
       ],
+      "title": "Latency percentiles",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
       "fieldConfig": {
         "defaults": {
-          "unit": "s",
           "custom": {
             "fillOpacity": 10,
             "lineWidth": 1,
             "showPoints": "never"
-          }
+          },
+          "unit": "s"
         },
         "overrides": []
       },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 24
+      },
+      "id": 14,
       "options": {
         "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
           "calcs": [
             "mean",
             "max",
             "lastNotNull"
-          ]
+          ],
+          "displayMode": "table",
+          "placement": "bottom"
         },
         "tooltip": {
           "mode": "multi",
           "sort": "desc"
         }
-      }
-    },
-    {
-      "id": 14,
-      "type": "timeseries",
-      "title": "P95 latency by route (top 10 slowest)",
-      "gridPos": {
-        "x": 12,
-        "y": 24,
-        "w": 12,
-        "h": 8
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
       },
       "targets": [
         {
-          "refId": "A",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
           "expr": "histogram_quantile(0.95, sum by (le, route) (rate(http_request_duration_seconds_bucket{job=\"$job\", instance=~\"$instance\", route=~\"$route\"}[$__rate_interval]))) and on (route) topk(10, histogram_quantile(0.95, sum by (le, route) (increase(http_request_duration_seconds_bucket{job=\"$job\", instance=~\"$instance\", route=~\"$route\"}[$__range]))))",
-          "legendFormat": "{{route}}"
+          "legendFormat": "{{route}}",
+          "refId": "A"
         }
       ],
+      "title": "P95 latency by route (top 10 slowest)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
       "fieldConfig": {
         "defaults": {
-          "unit": "s",
           "custom": {
             "fillOpacity": 10,
             "lineWidth": 1,
             "showPoints": "never"
-          }
+          },
+          "unit": "s"
         },
         "overrides": []
       },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 32
+      },
+      "id": 15,
       "options": {
         "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
           "calcs": [
             "mean",
             "max",
             "lastNotNull"
-          ]
+          ],
+          "displayMode": "table",
+          "placement": "bottom"
         },
         "tooltip": {
           "mode": "multi",
           "sort": "desc"
         }
-      }
-    },
-    {
-      "id": 15,
-      "type": "timeseries",
-      "title": "Average latency by method",
-      "gridPos": {
-        "x": 0,
-        "y": 32,
-        "w": 12,
-        "h": 8
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
       },
       "targets": [
         {
-          "refId": "A",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
           "expr": "sum by (method) (rate(http_request_duration_seconds_sum{job=\"$job\", instance=~\"$instance\", route=~\"$route\"}[$__rate_interval])) / (sum by (method) (rate(http_request_duration_seconds_count{job=\"$job\", instance=~\"$instance\", route=~\"$route\"}[$__rate_interval])) > 0)",
-          "legendFormat": "{{method}}"
+          "legendFormat": "{{method}}",
+          "refId": "A"
         }
       ],
+      "title": "Average latency by method",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "description": "Request rate above the 1s bucket boundary, by route.",
       "fieldConfig": {
         "defaults": {
-          "unit": "s",
           "custom": {
+            "axisSoftMax": 0.1,
             "fillOpacity": 10,
             "lineWidth": 1,
             "showPoints": "never"
-          }
+          },
+          "min": 0,
+          "unit": "reqps"
         },
         "overrides": []
       },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 32
+      },
+      "id": 16,
       "options": {
         "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
           "calcs": [
             "mean",
             "max",
             "lastNotNull"
-          ]
+          ],
+          "displayMode": "table",
+          "placement": "bottom"
         },
         "tooltip": {
           "mode": "multi",
           "sort": "desc"
         }
-      }
-    },
-    {
-      "id": 16,
-      "type": "timeseries",
-      "title": "Requests slower than 1s / s",
-      "gridPos": {
-        "x": 12,
-        "y": 32,
-        "w": 12,
-        "h": 8
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
       },
       "targets": [
         {
-          "refId": "A",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
           "expr": "sum by (route) (rate(http_request_duration_seconds_count{job=\"$job\", instance=~\"$instance\", route=~\"$route\"}[$__rate_interval])) - sum by (route) (rate(http_request_duration_seconds_bucket{job=\"$job\", instance=~\"$instance\", route=~\"$route\", le=\"1.0\"}[$__rate_interval]))",
-          "legendFormat": "{{route}}"
+          "legendFormat": "{{route}}",
+          "refId": "A"
         }
       ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "reqps",
-          "custom": {
-            "fillOpacity": 10,
-            "lineWidth": 1,
-            "showPoints": "never",
-            "axisSoftMax": 0.1
-          },
-          "min": 0
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
-          "calcs": [
-            "mean",
-            "max",
-            "lastNotNull"
-          ]
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "description": "Request rate above the 1s bucket boundary, by route."
+      "title": "Requests slower than 1s / s",
+      "type": "timeseries"
     },
     {
-      "id": 17,
-      "type": "row",
-      "title": "Routes (selected range)",
       "collapsed": false,
       "gridPos": {
         "h": 1,
@@ -1026,34 +939,75 @@
         "x": 0,
         "y": 40
       },
-      "panels": []
+      "id": 17,
+      "panels": [],
+      "title": "Routes (selected range)",
+      "type": "row"
     },
     {
-      "id": 18,
-      "type": "table",
-      "title": "Busiest routes",
-      "gridPos": {
-        "x": 0,
-        "y": 41,
-        "w": 8,
-        "h": 10
-      },
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto"
+          },
+          "noValue": "None in range",
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Requests"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "gauge"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 260
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 8,
+        "x": 0,
+        "y": 41
+      },
+      "id": 18,
+      "options": {
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Requests"
+          }
+        ]
+      },
       "targets": [
         {
-          "refId": "A",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
           "expr": "topk(15, sum by (route) (increase(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\"$route\"}[$__range])))",
+          "format": "table",
           "instant": true,
-          "format": "table"
+          "refId": "A"
         }
       ],
+      "title": "Busiest routes",
       "transformations": [
         {
           "id": "organize",
@@ -1067,26 +1021,33 @@
           }
         }
       ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
-          "noValue": "None in range",
           "custom": {
             "align": "auto"
-          }
+          },
+          "noValue": "None in range",
+          "unit": "s"
         },
         "overrides": [
           {
             "matcher": {
               "id": "byName",
-              "options": "Requests"
+              "options": "P95"
             },
             "properties": [
               {
                 "id": "custom.cellOptions",
                 "value": {
-                  "type": "gauge",
-                  "mode": "basic"
+                  "mode": "basic",
+                  "type": "gauge"
                 }
               },
               {
@@ -1097,42 +1058,35 @@
           }
         ]
       },
+      "gridPos": {
+        "h": 10,
+        "w": 8,
+        "x": 8,
+        "y": 41
+      },
+      "id": 19,
       "options": {
+        "showHeader": true,
         "sortBy": [
           {
-            "displayName": "Requests",
-            "desc": true
+            "desc": true,
+            "displayName": "P95"
           }
-        ],
-        "showHeader": true
-      }
-    },
-    {
-      "id": 19,
-      "type": "table",
-      "title": "Slowest routes (P95)",
-      "gridPos": {
-        "x": 8,
-        "y": 41,
-        "w": 8,
-        "h": 10
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
+        ]
       },
       "targets": [
         {
-          "refId": "A",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
           "expr": "topk(15, histogram_quantile(0.95, sum by (le, route) (increase(http_request_duration_seconds_bucket{job=\"$job\", instance=~\"$instance\", route=~\"$route\"}[$__range]))))",
+          "format": "table",
           "instant": true,
-          "format": "table"
+          "refId": "A"
         }
       ],
+      "title": "Slowest routes (P95)",
       "transformations": [
         {
           "id": "organize",
@@ -1146,26 +1100,33 @@
           }
         }
       ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
       "fieldConfig": {
         "defaults": {
-          "unit": "s",
-          "noValue": "None in range",
           "custom": {
             "align": "auto"
-          }
+          },
+          "noValue": "None in range",
+          "unit": "short"
         },
         "overrides": [
           {
             "matcher": {
               "id": "byName",
-              "options": "P95"
+              "options": "Errors"
             },
             "properties": [
               {
                 "id": "custom.cellOptions",
                 "value": {
-                  "type": "gauge",
-                  "mode": "basic"
+                  "mode": "basic",
+                  "type": "gauge"
                 }
               },
               {
@@ -1176,42 +1137,35 @@
           }
         ]
       },
+      "gridPos": {
+        "h": 10,
+        "w": 8,
+        "x": 16,
+        "y": 41
+      },
+      "id": 20,
       "options": {
+        "showHeader": true,
         "sortBy": [
           {
-            "displayName": "P95",
-            "desc": true
+            "desc": true,
+            "displayName": "Errors"
           }
-        ],
-        "showHeader": true
-      }
-    },
-    {
-      "id": 20,
-      "type": "table",
-      "title": "Routes with 5xx",
-      "gridPos": {
-        "x": 16,
-        "y": 41,
-        "w": 8,
-        "h": 10
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
+        ]
       },
       "targets": [
         {
-          "refId": "A",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
           "expr": "topk(15, sum by (route, status_code) (increase(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\"$route\", status_code=~\"5..\"}[$__range])) > 0)",
+          "format": "table",
           "instant": true,
-          "format": "table"
+          "refId": "A"
         }
       ],
+      "title": "Routes with 5xx",
       "transformations": [
         {
           "id": "organize",
@@ -1225,50 +1179,9 @@
           }
         }
       ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "noValue": "None in range",
-          "custom": {
-            "align": "auto"
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Errors"
-            },
-            "properties": [
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "type": "gauge",
-                  "mode": "basic"
-                }
-              },
-              {
-                "id": "custom.width",
-                "value": 260
-              }
-            ]
-          }
-        ]
-      },
-      "options": {
-        "sortBy": [
-          {
-            "displayName": "Errors",
-            "desc": true
-          }
-        ],
-        "showHeader": true
-      }
+      "type": "table"
     },
     {
-      "id": 21,
-      "type": "row",
-      "title": "Storage reads (file / image / download)",
       "collapsed": false,
       "gridPos": {
         "h": 1,
@@ -1276,35 +1189,21 @@
         "x": 0,
         "y": 51
       },
-      "panels": []
+      "id": 21,
+      "panels": [],
+      "title": "Storage reads (file / image / download)",
+      "type": "row"
     },
     {
-      "id": 22,
-      "type": "stat",
-      "title": "file/*path req/s",
-      "gridPos": {
-        "x": 0,
-        "y": 52,
-        "w": 6,
-        "h": 4
-      },
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "expr": "sum(rate(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\".*/file/\\\\*path\"}[$__rate_interval])) or vector(0)"
-        }
-      ],
       "fieldConfig": {
         "defaults": {
-          "unit": "reqps",
+          "color": {
+            "mode": "thresholds"
+          },
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -1314,51 +1213,51 @@
               }
             ]
           },
-          "color": {
-            "mode": "thresholds"
-          }
+          "unit": "reqps"
         },
         "overrides": []
       },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 52
+      },
+      "id": 22,
       "options": {
+        "colorMode": "value",
+        "graphMode": "area",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
           ]
         },
-        "graphMode": "area",
-        "colorMode": "value",
         "textMode": "value"
-      }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "sum(rate(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\".*/file/\\\\*path\"}[$__rate_interval])) or vector(0)",
+          "refId": "A"
+        }
+      ],
+      "title": "file/*path req/s",
+      "type": "stat"
     },
     {
-      "id": 23,
-      "type": "stat",
-      "title": "file/*path non-307 ratio",
-      "gridPos": {
-        "x": 6,
-        "y": 52,
-        "w": 6,
-        "h": 4
-      },
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
       "description": "A healthy file read answers 307 to the worker; anything else is an auth, key or signing failure.",
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "expr": "(sum(rate(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\".*/file/\\\\*path\", status_code!=\"307\"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\".*/file/\\\\*path\"}[$__rate_interval])), 1e-9)"
-        }
-      ],
       "fieldConfig": {
         "defaults": {
-          "unit": "percentunit",
+          "color": {
+            "mode": "thresholds"
+          },
           "decimals": 2,
           "thresholds": {
             "mode": "absolute",
@@ -1377,50 +1276,50 @@
               }
             ]
           },
-          "color": {
-            "mode": "thresholds"
-          }
+          "unit": "percentunit"
         },
         "overrides": []
       },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 52
+      },
+      "id": 23,
       "options": {
+        "colorMode": "value",
+        "graphMode": "area",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
           ]
         },
-        "graphMode": "area",
-        "colorMode": "value",
         "textMode": "value"
-      }
-    },
-    {
-      "id": 24,
-      "type": "stat",
-      "title": "file/*path P95",
-      "gridPos": {
-        "x": 12,
-        "y": 52,
-        "w": 6,
-        "h": 4
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
       },
       "targets": [
         {
-          "refId": "A",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{job=\"$job\", instance=~\"$instance\", route=~\".*/file/\\\\*path\"}[$__rate_interval])))"
+          "expr": "(sum(rate(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\".*/file/\\\\*path\", status_code!=\"307\"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\".*/file/\\\\*path\"}[$__rate_interval])), 1e-9)",
+          "refId": "A"
         }
       ],
+      "title": "file/*path non-307 ratio",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
       "fieldConfig": {
         "defaults": {
-          "unit": "s",
+          "color": {
+            "mode": "thresholds"
+          },
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -1438,50 +1337,50 @@
               }
             ]
           },
-          "color": {
-            "mode": "thresholds"
-          }
+          "unit": "s"
         },
         "overrides": []
       },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 52
+      },
+      "id": 24,
       "options": {
+        "colorMode": "value",
+        "graphMode": "area",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
           ]
         },
-        "graphMode": "area",
-        "colorMode": "value",
         "textMode": "value"
-      }
-    },
-    {
-      "id": 25,
-      "type": "stat",
-      "title": "file/*path 5xx (range)",
-      "gridPos": {
-        "x": 18,
-        "y": 52,
-        "w": 6,
-        "h": 4
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
       },
       "targets": [
         {
-          "refId": "A",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum(increase(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\".*/file/\\\\*path\", status_code=~\"5..\"}[$__range])) or vector(0)"
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{job=\"$job\", instance=~\"$instance\", route=~\".*/file/\\\\*path\"}[$__rate_interval])))",
+          "refId": "A"
         }
       ],
+      "title": "file/*path P95",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "color": {
+            "mode": "thresholds"
+          },
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -1495,167 +1394,164 @@
               }
             ]
           },
-          "color": {
-            "mode": "thresholds"
-          }
+          "unit": "short"
         },
         "overrides": []
       },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 52
+      },
+      "id": 25,
       "options": {
+        "colorMode": "value",
+        "graphMode": "area",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
           ]
         },
-        "graphMode": "area",
-        "colorMode": "value",
         "textMode": "value"
-      }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "sum(increase(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\".*/file/\\\\*path\", status_code=~\"5..\"}[$__range])) or vector(0)",
+          "refId": "A"
+        }
+      ],
+      "title": "file/*path 5xx (range)",
+      "type": "stat"
     },
     {
-      "id": 26,
-      "type": "timeseries",
-      "title": "Storage requests / s by route and status",
-      "gridPos": {
-        "x": 0,
-        "y": 56,
-        "w": 12,
-        "h": 8
-      },
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 1,
+            "showPoints": "never",
+            "stacking": {
+              "mode": "normal"
+            }
+          },
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 56
+      },
+      "id": 26,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
       "targets": [
         {
-          "refId": "A",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
           "expr": "sum by (route, status_code) (rate(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\".*/(file|image|download)/\\\\*path\"}[$__rate_interval]))",
-          "legendFormat": "{{status_code}} {{route}}"
+          "legendFormat": "{{status_code}} {{route}}",
+          "refId": "A"
         }
       ],
+      "title": "Storage requests / s by route and status",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
       "fieldConfig": {
         "defaults": {
-          "unit": "reqps",
           "custom": {
             "fillOpacity": 10,
             "lineWidth": 1,
-            "showPoints": "never",
-            "stacking": {
-              "mode": "normal"
-            }
-          }
+            "showPoints": "never"
+          },
+          "unit": "s"
         },
         "overrides": []
       },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 56
+      },
+      "id": 27,
       "options": {
         "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
           "calcs": [
             "mean",
             "max",
             "lastNotNull"
-          ]
+          ],
+          "displayMode": "table",
+          "placement": "bottom"
         },
         "tooltip": {
           "mode": "multi",
           "sort": "desc"
         }
-      }
-    },
-    {
-      "id": 27,
-      "type": "timeseries",
-      "title": "Storage P95 / P99 by route",
-      "gridPos": {
-        "x": 12,
-        "y": 56,
-        "w": 12,
-        "h": 8
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
       },
       "targets": [
         {
-          "refId": "A",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
           "expr": "histogram_quantile(0.95, sum by (le, route) (rate(http_request_duration_seconds_bucket{job=\"$job\", instance=~\"$instance\", route=~\".*/(file|image|download)/\\\\*path\"}[$__rate_interval])))",
-          "legendFormat": "p95 {{route}}"
+          "legendFormat": "p95 {{route}}",
+          "refId": "A"
         },
         {
-          "refId": "B",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
           "expr": "histogram_quantile(0.99, sum by (le, route) (rate(http_request_duration_seconds_bucket{job=\"$job\", instance=~\"$instance\", route=~\".*/(file|image|download)/\\\\*path\"}[$__rate_interval])))",
-          "legendFormat": "p99 {{route}}"
+          "legendFormat": "p99 {{route}}",
+          "refId": "B"
         }
       ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "s",
-          "custom": {
-            "fillOpacity": 10,
-            "lineWidth": 1,
-            "showPoints": "never"
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
-          "calcs": [
-            "mean",
-            "max",
-            "lastNotNull"
-          ]
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      }
+      "title": "Storage P95 / P99 by route",
+      "type": "timeseries"
     },
     {
-      "id": 28,
-      "type": "timeseries",
-      "title": "file/*path by attempt",
-      "gridPos": {
-        "x": 0,
-        "y": 64,
-        "w": 9,
-        "h": 8
-      },
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "expr": "sum by (attempt) (rate(storage_file_requests_total{job=\"$job\", instance=~\"$instance\", route=~\"$route\"}[$__rate_interval]))",
-          "legendFormat": "{{attempt}}"
-        }
-      ],
+      "description": "first = initial load; retry = Annotator auto / manual retry; probe = worker probe sent after the retry also failed (≈ a viewer stuck on the error overlay). Needs the storage_file_requests_total metric (apps/api).",
       "fieldConfig": {
         "defaults": {
-          "unit": "reqps",
           "custom": {
             "fillOpacity": 10,
             "lineWidth": 1,
@@ -1663,7 +1559,8 @@
             "stacking": {
               "mode": "normal"
             }
-          }
+          },
+          "unit": "reqps"
         },
         "overrides": [
           {
@@ -1675,8 +1572,8 @@
               {
                 "id": "color",
                 "value": {
-                  "mode": "fixed",
-                  "fixedColor": "green"
+                  "fixedColor": "green",
+                  "mode": "fixed"
                 }
               }
             ]
@@ -1690,8 +1587,8 @@
               {
                 "id": "color",
                 "value": {
-                  "mode": "fixed",
-                  "fixedColor": "orange"
+                  "fixedColor": "orange",
+                  "mode": "fixed"
                 }
               }
             ]
@@ -1705,59 +1602,61 @@
               {
                 "id": "color",
                 "value": {
-                  "mode": "fixed",
-                  "fixedColor": "red"
+                  "fixedColor": "red",
+                  "mode": "fixed"
                 }
               }
             ]
           }
         ]
       },
+      "gridPos": {
+        "h": 8,
+        "w": 9,
+        "x": 0,
+        "y": 64
+      },
+      "id": 28,
       "options": {
         "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
           "calcs": [
             "mean",
             "max",
             "lastNotNull"
-          ]
+          ],
+          "displayMode": "table",
+          "placement": "bottom"
         },
         "tooltip": {
           "mode": "multi",
           "sort": "desc"
         }
       },
-      "description": "first = initial load; retry = Annotator auto / manual retry; probe = worker probe sent after the retry also failed (≈ a viewer stuck on the error overlay). Needs the storage_file_requests_total metric (apps/api)."
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "sum by (attempt) (rate(storage_file_requests_total{job=\"$job\", instance=~\"$instance\", route=~\"$route\"}[$__rate_interval]))",
+          "legendFormat": "{{attempt}}",
+          "refId": "A"
+        }
+      ],
+      "title": "file/*path by attempt",
+      "type": "timeseries"
     },
     {
-      "id": 29,
-      "type": "stat",
-      "title": "Retry ratio",
-      "gridPos": {
-        "x": 9,
-        "y": 64,
-        "w": 5,
-        "h": 4
-      },
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
       "description": "(retry + probe) / first: how often a first load needs another try.",
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "expr": "(sum(rate(storage_file_requests_total{job=\"$job\", instance=~\"$instance\", route=~\"$route\", attempt!=\"first\"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(storage_file_requests_total{job=\"$job\", instance=~\"$instance\", route=~\"$route\", attempt=\"first\"}[$__rate_interval])), 1e-9)"
-        }
-      ],
       "fieldConfig": {
         "defaults": {
-          "unit": "percentunit",
+          "color": {
+            "mode": "thresholds"
+          },
           "decimals": 2,
           "thresholds": {
             "mode": "absolute",
@@ -1776,51 +1675,51 @@
               }
             ]
           },
-          "color": {
-            "mode": "thresholds"
-          }
+          "unit": "percentunit"
         },
         "overrides": []
       },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 9,
+        "y": 64
+      },
+      "id": 29,
       "options": {
+        "colorMode": "value",
+        "graphMode": "area",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
           ]
         },
-        "graphMode": "area",
-        "colorMode": "value",
         "textMode": "value"
-      }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "(sum(rate(storage_file_requests_total{job=\"$job\", instance=~\"$instance\", route=~\"$route\", attempt!=\"first\"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(storage_file_requests_total{job=\"$job\", instance=~\"$instance\", route=~\"$route\", attempt=\"first\"}[$__rate_interval])), 1e-9)",
+          "refId": "A"
+        }
+      ],
+      "title": "Retry ratio",
+      "type": "stat"
     },
     {
-      "id": 30,
-      "type": "stat",
-      "title": "Failed after retry (range)",
-      "gridPos": {
-        "x": 9,
-        "y": 68,
-        "w": 5,
-        "h": 4
-      },
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
       "description": "Probe requests: the retry failed too, so the ui probed the worker before reporting to Sentry.",
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "expr": "sum(increase(storage_file_requests_total{job=\"$job\", instance=~\"$instance\", route=~\"$route\", attempt=\"probe\"}[$__range])) or vector(0)"
-        }
-      ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "color": {
+            "mode": "thresholds"
+          },
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -1834,49 +1733,104 @@
               }
             ]
           },
-          "color": {
-            "mode": "thresholds"
-          }
+          "unit": "short"
         },
         "overrides": []
       },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 9,
+        "y": 68
+      },
+      "id": 30,
       "options": {
+        "colorMode": "value",
+        "graphMode": "area",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
           ]
         },
-        "graphMode": "area",
-        "colorMode": "value",
         "textMode": "value"
-      }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "sum(increase(storage_file_requests_total{job=\"$job\", instance=~\"$instance\", route=~\"$route\", attempt=\"probe\"}[$__range])) or vector(0)",
+          "refId": "A"
+        }
+      ],
+      "title": "Failed after retry (range)",
+      "type": "stat"
     },
     {
-      "id": 31,
-      "type": "table",
-      "title": "Retries and probes by route / status",
-      "gridPos": {
-        "x": 14,
-        "y": 64,
-        "w": 10,
-        "h": 8
-      },
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto"
+          },
+          "noValue": "None in range",
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Requests"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "gauge"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 260
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 10,
+        "x": 14,
+        "y": 64
+      },
+      "id": 31,
+      "options": {
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Requests"
+          }
+        ]
+      },
       "targets": [
         {
-          "refId": "A",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
           "expr": "sum by (route, attempt, status_code) (increase(storage_file_requests_total{job=\"$job\", instance=~\"$instance\", route=~\"$route\", attempt!=\"first\"}[$__range])) > 0",
+          "format": "table",
           "instant": true,
-          "format": "table"
+          "refId": "A"
         }
       ],
+      "title": "Retries and probes by route / status",
       "transformations": [
         {
           "id": "organize",
@@ -1890,50 +1844,9 @@
           }
         }
       ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "noValue": "None in range",
-          "custom": {
-            "align": "auto"
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Requests"
-            },
-            "properties": [
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "type": "gauge",
-                  "mode": "basic"
-                }
-              },
-              {
-                "id": "custom.width",
-                "value": 260
-              }
-            ]
-          }
-        ]
-      },
-      "options": {
-        "sortBy": [
-          {
-            "displayName": "Requests",
-            "desc": true
-          }
-        ],
-        "showHeader": true
-      }
+      "type": "table"
     },
     {
-      "id": 32,
-      "type": "row",
-      "title": "Uploads (presign / token / commit)",
       "collapsed": false,
       "gridPos": {
         "h": 1,
@@ -1941,36 +1854,22 @@
         "x": 0,
         "y": 72
       },
-      "panels": []
+      "id": 32,
+      "panels": [],
+      "title": "Uploads (presign / token / commit)",
+      "type": "row"
     },
     {
-      "id": 33,
-      "type": "stat",
-      "title": "Upload API req/s",
-      "gridPos": {
-        "x": 0,
-        "y": 73,
-        "w": 6,
-        "h": 4
-      },
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
       "description": "Presign, upload-token and commit calls. The bytes go browser → R2 or browser → upload worker and never reach apps/api.",
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "expr": "sum(rate(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\".*/(storage/presign|upload-token|upload-zip/token|drop-publish/commit|flat-zip/commit|import-archive)\"}[$__rate_interval])) or vector(0)"
-        }
-      ],
       "fieldConfig": {
         "defaults": {
-          "unit": "reqps",
+          "color": {
+            "mode": "thresholds"
+          },
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -1980,51 +1879,51 @@
               }
             ]
           },
-          "color": {
-            "mode": "thresholds"
-          }
+          "unit": "reqps"
         },
         "overrides": []
       },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 73
+      },
+      "id": 33,
       "options": {
+        "colorMode": "value",
+        "graphMode": "area",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
           ]
         },
-        "graphMode": "area",
-        "colorMode": "value",
         "textMode": "value"
-      }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "sum(rate(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\".*/(storage/presign|upload-token|upload-zip/token|drop-publish/commit|flat-zip/commit|import-archive)\"}[$__rate_interval])) or vector(0)",
+          "refId": "A"
+        }
+      ],
+      "title": "Upload API req/s",
+      "type": "stat"
     },
     {
-      "id": 34,
-      "type": "stat",
-      "title": "Upload API failure ratio",
-      "gridPos": {
-        "x": 6,
-        "y": 73,
-        "w": 6,
-        "h": 4
-      },
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
       "description": "4xx (namespace / MIME / size rejected, no permission) + 5xx, out of all upload API calls.",
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "expr": "(sum(rate(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\".*/(storage/presign|upload-token|upload-zip/token|drop-publish/commit|flat-zip/commit|import-archive)\", status_code=~\"4..|5..\", status_code!=\"499\"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\".*/(storage/presign|upload-token|upload-zip/token|drop-publish/commit|flat-zip/commit|import-archive)\"}[$__rate_interval])), 1e-9)"
-        }
-      ],
       "fieldConfig": {
         "defaults": {
-          "unit": "percentunit",
+          "color": {
+            "mode": "thresholds"
+          },
           "decimals": 2,
           "thresholds": {
             "mode": "absolute",
@@ -2043,50 +1942,50 @@
               }
             ]
           },
-          "color": {
-            "mode": "thresholds"
-          }
+          "unit": "percentunit"
         },
         "overrides": []
       },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 73
+      },
+      "id": 34,
       "options": {
+        "colorMode": "value",
+        "graphMode": "area",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
           ]
         },
-        "graphMode": "area",
-        "colorMode": "value",
         "textMode": "value"
-      }
-    },
-    {
-      "id": 35,
-      "type": "stat",
-      "title": "Upload API P95",
-      "gridPos": {
-        "x": 12,
-        "y": 73,
-        "w": 6,
-        "h": 4
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
       },
       "targets": [
         {
-          "refId": "A",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{job=\"$job\", instance=~\"$instance\", route=~\".*/(storage/presign|upload-token|upload-zip/token|drop-publish/commit|flat-zip/commit|import-archive)\"}[$__rate_interval])))"
+          "expr": "(sum(rate(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\".*/(storage/presign|upload-token|upload-zip/token|drop-publish/commit|flat-zip/commit|import-archive)\", status_code=~\"4..|5..\", status_code!=\"499\"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\".*/(storage/presign|upload-token|upload-zip/token|drop-publish/commit|flat-zip/commit|import-archive)\"}[$__rate_interval])), 1e-9)",
+          "refId": "A"
         }
       ],
+      "title": "Upload API failure ratio",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
       "fieldConfig": {
         "defaults": {
-          "unit": "s",
+          "color": {
+            "mode": "thresholds"
+          },
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -2104,50 +2003,50 @@
               }
             ]
           },
-          "color": {
-            "mode": "thresholds"
-          }
+          "unit": "s"
         },
         "overrides": []
       },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 73
+      },
+      "id": 35,
       "options": {
+        "colorMode": "value",
+        "graphMode": "area",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
           ]
         },
-        "graphMode": "area",
-        "colorMode": "value",
         "textMode": "value"
-      }
-    },
-    {
-      "id": 36,
-      "type": "stat",
-      "title": "Upload API 5xx (range)",
-      "gridPos": {
-        "x": 18,
-        "y": 73,
-        "w": 6,
-        "h": 4
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
       },
       "targets": [
         {
-          "refId": "A",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum(increase(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\".*/(storage/presign|upload-token|upload-zip/token|drop-publish/commit|flat-zip/commit|import-archive)\", status_code=~\"5..\"}[$__range])) or vector(0)"
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{job=\"$job\", instance=~\"$instance\", route=~\".*/(storage/presign|upload-token|upload-zip/token|drop-publish/commit|flat-zip/commit|import-archive)\"}[$__rate_interval])))",
+          "refId": "A"
         }
       ],
+      "title": "Upload API P95",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "color": {
+            "mode": "thresholds"
+          },
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -2161,122 +2060,118 @@
               }
             ]
           },
-          "color": {
-            "mode": "thresholds"
-          }
+          "unit": "short"
         },
         "overrides": []
       },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 73
+      },
+      "id": 36,
       "options": {
+        "colorMode": "value",
+        "graphMode": "area",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
           ]
         },
-        "graphMode": "area",
-        "colorMode": "value",
         "textMode": "value"
-      }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "sum(increase(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\".*/(storage/presign|upload-token|upload-zip/token|drop-publish/commit|flat-zip/commit|import-archive)\", status_code=~\"5..\"}[$__range])) or vector(0)",
+          "refId": "A"
+        }
+      ],
+      "title": "Upload API 5xx (range)",
+      "type": "stat"
     },
     {
-      "id": 37,
-      "type": "timeseries",
-      "title": "Upload calls / s by stage",
-      "gridPos": {
-        "x": 0,
-        "y": 77,
-        "w": 12,
-        "h": 8
-      },
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "expr": "sum(rate(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\".*/(storage/presign)\"}[$__rate_interval])) or vector(0)",
-          "legendFormat": "presign"
-        },
-        {
-          "refId": "B",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "expr": "sum(rate(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\".*/(upload-token|upload-zip/token)\"}[$__rate_interval])) or vector(0)",
-          "legendFormat": "upload token"
-        },
-        {
-          "refId": "C",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "expr": "sum(rate(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\".*/(drop-publish/commit|flat-zip/commit|import-archive)\"}[$__rate_interval])) or vector(0)",
-          "legendFormat": "commit / import"
-        }
-      ],
+      "description": "A token with no matching commit is an upload that was abandoned or failed on the way to the upload worker.",
       "fieldConfig": {
         "defaults": {
-          "unit": "reqps",
           "custom": {
             "fillOpacity": 10,
             "lineWidth": 1,
             "showPoints": "never"
-          }
+          },
+          "unit": "reqps"
         },
         "overrides": []
       },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 77
+      },
+      "id": 37,
       "options": {
         "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
           "calcs": [
             "mean",
             "max",
             "lastNotNull"
-          ]
+          ],
+          "displayMode": "table",
+          "placement": "bottom"
         },
         "tooltip": {
           "mode": "multi",
           "sort": "desc"
         }
       },
-      "description": "A token with no matching commit is an upload that was abandoned or failed on the way to the upload worker."
-    },
-    {
-      "id": 38,
-      "type": "timeseries",
-      "title": "Upload calls / s by route and status",
-      "gridPos": {
-        "x": 12,
-        "y": 77,
-        "w": 12,
-        "h": 8
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
       "targets": [
         {
-          "refId": "A",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum by (route, status_code) (rate(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\".*/(storage/presign|upload-token|upload-zip/token|drop-publish/commit|flat-zip/commit|import-archive)\"}[$__rate_interval]))",
-          "legendFormat": "{{status_code}} {{route}}"
+          "expr": "sum(rate(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\".*/(storage/presign)\"}[$__rate_interval])) or vector(0)",
+          "legendFormat": "presign",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "sum(rate(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\".*/(upload-token|upload-zip/token)\"}[$__rate_interval])) or vector(0)",
+          "legendFormat": "upload token",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "sum(rate(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\".*/(drop-publish/commit|flat-zip/commit|import-archive)\"}[$__rate_interval])) or vector(0)",
+          "legendFormat": "commit / import",
+          "refId": "C"
         }
       ],
+      "title": "Upload calls / s by stage",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
       "fieldConfig": {
         "defaults": {
-          "unit": "reqps",
           "custom": {
             "fillOpacity": 10,
             "lineWidth": 1,
@@ -2284,104 +2179,163 @@
             "stacking": {
               "mode": "normal"
             }
-          }
+          },
+          "unit": "reqps"
         },
         "overrides": []
       },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 77
+      },
+      "id": 38,
       "options": {
         "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
           "calcs": [
             "mean",
             "max",
             "lastNotNull"
-          ]
+          ],
+          "displayMode": "table",
+          "placement": "bottom"
         },
         "tooltip": {
           "mode": "multi",
           "sort": "desc"
         }
-      }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "sum by (route, status_code) (rate(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\".*/(storage/presign|upload-token|upload-zip/token|drop-publish/commit|flat-zip/commit|import-archive)\"}[$__rate_interval]))",
+          "legendFormat": "{{status_code}} {{route}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Upload calls / s by route and status",
+      "type": "timeseries"
     },
     {
-      "id": 39,
-      "type": "timeseries",
-      "title": "Upload API P95 by route",
-      "gridPos": {
-        "x": 0,
-        "y": 85,
-        "w": 12,
-        "h": 8
-      },
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 1,
+            "showPoints": "never"
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 85
+      },
+      "id": 39,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
       "targets": [
         {
-          "refId": "A",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
           "expr": "histogram_quantile(0.95, sum by (le, route) (rate(http_request_duration_seconds_bucket{job=\"$job\", instance=~\"$instance\", route=~\".*/(storage/presign|upload-token|upload-zip/token|drop-publish/commit|flat-zip/commit|import-archive)\"}[$__rate_interval])))",
-          "legendFormat": "{{route}}"
+          "legendFormat": "{{route}}",
+          "refId": "A"
         }
       ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "s",
-          "custom": {
-            "fillOpacity": 10,
-            "lineWidth": 1,
-            "showPoints": "never"
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
-          "calcs": [
-            "mean",
-            "max",
-            "lastNotNull"
-          ]
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      }
+      "title": "Upload API P95 by route",
+      "type": "timeseries"
     },
     {
-      "id": 40,
-      "type": "table",
-      "title": "Upload API failures by route / status",
-      "gridPos": {
-        "x": 12,
-        "y": 85,
-        "w": 12,
-        "h": 8
-      },
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto"
+          },
+          "noValue": "None in range",
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Requests"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "gauge"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 260
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 85
+      },
+      "id": 40,
+      "options": {
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Requests"
+          }
+        ]
+      },
       "targets": [
         {
-          "refId": "A",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
           "expr": "sum by (route, status_code) (increase(http_requests_total{job=\"$job\", instance=~\"$instance\", route=~\".*/(storage/presign|upload-token|upload-zip/token|drop-publish/commit|flat-zip/commit|import-archive)\", status_code=~\"4..|5..\"}[$__range])) > 0",
+          "format": "table",
           "instant": true,
-          "format": "table"
+          "refId": "A"
         }
       ],
+      "title": "Upload API failures by route / status",
       "transformations": [
         {
           "id": "organize",
@@ -2395,26 +2349,582 @@
           }
         }
       ],
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 93
+      },
+      "id": 41,
+      "panels": [],
+      "title": "Database (postgres.js via drizzle)",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
-          "noValue": "None in range",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 0,
+        "y": 94
+      },
+      "id": 42,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "textMode": "value"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "sum(rate(db_query_duration_seconds_count{job=\"$job\", instance=~\"$instance\"}[$__rate_interval])) or vector(0)",
+          "refId": "A"
+        }
+      ],
+      "title": "DB queries / s",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0.001
+              },
+              {
+                "color": "red",
+                "value": 0.01
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 5,
+        "y": 94
+      },
+      "id": 43,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "textMode": "value"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "(sum(rate(db_query_duration_seconds_count{job=\"$job\", instance=~\"$instance\", status=\"error\"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(db_query_duration_seconds_count{job=\"$job\", instance=~\"$instance\"}[$__rate_interval])), 1e-9)",
+          "refId": "A"
+        }
+      ],
+      "title": "DB error ratio",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0.1
+              },
+              {
+                "color": "red",
+                "value": 0.5
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 10,
+        "y": 94
+      },
+      "id": 44,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "textMode": "value"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(db_query_duration_seconds_bucket{job=\"$job\", instance=~\"$instance\"}[$__rate_interval])))",
+          "refId": "A"
+        }
+      ],
+      "title": "DB query P95",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "description": "Highest in-flight queries ÷ POSTGRES_POOL_MAX in the range, per instance. ≥100% means queries queued for a connection.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0.8
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 15,
+        "y": 94
+      },
+      "id": 45,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "textMode": "value"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "max(max_over_time(db_queries_in_flight{job=\"$job\", instance=~\"$instance\"}[$__range]) / db_pool_max{job=\"$job\", instance=~\"$instance\"})",
+          "refId": "A"
+        }
+      ],
+      "title": "Peak pool usage",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 94
+      },
+      "id": 46,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "textMode": "value"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "sum(increase(db_transaction_duration_seconds_count{job=\"$job\", instance=~\"$instance\", kind=\"transaction\", outcome=\"rollback\"}[$__range])) or vector(0)",
+          "refId": "A"
+        }
+      ],
+      "title": "Rolled-back transactions (range)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 1,
+            "showPoints": "never",
+            "stacking": {
+              "mode": "normal"
+            }
+          },
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 98
+      },
+      "id": 47,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "sum by (operation) (rate(db_query_duration_seconds_count{job=\"$job\", instance=~\"$instance\"}[$__rate_interval]))",
+          "legendFormat": "{{operation}}",
+          "refId": "A"
+        }
+      ],
+      "title": "DB queries / s by operation",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "description": "Includes the wait for a free pool connection, so a jump with flat DB load usually means the pool is saturated.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 1,
+            "showPoints": "never"
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 98
+      },
+      "id": 48,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "histogram_quantile(0.5, sum by (le) (rate(db_query_duration_seconds_bucket{job=\"$job\", instance=~\"$instance\"}[$__rate_interval])))",
+          "legendFormat": "p50",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(db_query_duration_seconds_bucket{job=\"$job\", instance=~\"$instance\"}[$__rate_interval])))",
+          "legendFormat": "p95",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(db_query_duration_seconds_bucket{job=\"$job\", instance=~\"$instance\"}[$__rate_interval])))",
+          "legendFormat": "p99",
+          "refId": "C"
+        }
+      ],
+      "title": "DB query latency",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "description": "Sampled every scrape, so short bursts can be missed; the Peak pool usage stat uses max_over_time.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 1,
+            "showPoints": "never"
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 106
+      },
+      "id": 49,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "max by (instance) (db_queries_in_flight{job=\"$job\", instance=~\"$instance\"})",
+          "legendFormat": "in flight",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "max(db_pool_max{job=\"$job\", instance=~\"$instance\"})",
+          "legendFormat": "pool max",
+          "refId": "B"
+        }
+      ],
+      "title": "Pool: in-flight queries vs limit",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 1,
+            "showPoints": "never"
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 106
+      },
+      "id": 50,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "histogram_quantile(0.95, sum by (le, table) (rate(db_query_duration_seconds_bucket{job=\"$job\", instance=~\"$instance\"}[$__rate_interval]))) and on (table) topk(10, histogram_quantile(0.95, sum by (le, table) (increase(db_query_duration_seconds_bucket{job=\"$job\", instance=~\"$instance\"}[$__range]))))",
+          "legendFormat": "{{table}}",
+          "refId": "A"
+        }
+      ],
+      "title": "P95 by table (top 10 slowest)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
           "custom": {
             "align": "auto"
-          }
+          },
+          "noValue": "None in range",
+          "unit": "short"
         },
         "overrides": [
           {
             "matcher": {
               "id": "byName",
-              "options": "Requests"
+              "options": "Queries"
             },
             "properties": [
               {
                 "id": "custom.cellOptions",
                 "value": {
-                  "type": "gauge",
-                  "mode": "basic"
+                  "mode": "basic",
+                  "type": "gauge"
                 }
               },
               {
@@ -2425,270 +2935,559 @@
           }
         ]
       },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 0,
+        "y": 114
+      },
+      "id": 51,
       "options": {
+        "showHeader": true,
         "sortBy": [
           {
-            "displayName": "Requests",
-            "desc": true
+            "desc": true,
+            "displayName": "Queries"
           }
-        ],
-        "showHeader": true
-      }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "topk(15, sum by (table, operation) (increase(db_query_duration_seconds_count{job=\"$job\", instance=~\"$instance\"}[$__range])))",
+          "format": "table",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Busiest tables",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "renameByName": {
+              "Value": "Queries"
+            }
+          }
+        }
+      ],
+      "type": "table"
     },
     {
-      "id": 41,
-      "type": "row",
-      "title": "Node.js process",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto"
+          },
+          "noValue": "None in range",
+          "unit": "s"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "P95"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "gauge"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 260
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 8,
+        "y": 114
+      },
+      "id": 52,
+      "options": {
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "P95"
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "topk(15, histogram_quantile(0.95, sum by (le, table, operation) (increase(db_query_duration_seconds_bucket{job=\"$job\", instance=~\"$instance\"}[$__range]))))",
+          "format": "table",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Slowest tables (P95)",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "renameByName": {
+              "Value": "P95"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "description": "23505 unique violation · 23503 FK violation · 57014 statement timeout · 40001 serialization · 53300 too many connections · unknown = connection-level",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto"
+          },
+          "noValue": "None in range",
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Errors"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "gauge"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 260
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 16,
+        "y": 114
+      },
+      "id": 53,
+      "options": {
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Errors"
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "sum by (table, operation, code) (increase(db_query_errors_total{job=\"$job\", instance=~\"$instance\"}[$__range])) > 0",
+          "format": "table",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Query errors by table / SQLSTATE",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "renameByName": {
+              "Value": "Errors"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "description": "A long transaction holds its connection the whole time.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 1,
+            "showPoints": "never"
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 123
+      },
+      "id": 54,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "histogram_quantile(0.95, sum by (le, kind) (rate(db_transaction_duration_seconds_bucket{job=\"$job\", instance=~\"$instance\"}[$__rate_interval])))",
+          "legendFormat": "p95 {{kind}}",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "histogram_quantile(0.99, sum by (le, kind) (rate(db_transaction_duration_seconds_bucket{job=\"$job\", instance=~\"$instance\"}[$__rate_interval])))",
+          "legendFormat": "p99 {{kind}}",
+          "refId": "B"
+        }
+      ],
+      "title": "Transaction duration",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 1,
+            "showPoints": "never",
+            "stacking": {
+              "mode": "normal"
+            }
+          },
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 123
+      },
+      "id": 55,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "sum by (kind, outcome) (rate(db_transaction_duration_seconds_count{job=\"$job\", instance=~\"$instance\"}[$__rate_interval]))",
+          "legendFormat": "{{kind}} {{outcome}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Transactions / s by outcome",
+      "type": "timeseries"
+    },
+    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 93
+        "y": 131
       },
-      "panels": []
+      "id": 56,
+      "panels": [],
+      "title": "Node.js process",
+      "type": "row"
     },
     {
-      "id": 42,
-      "type": "timeseries",
-      "title": "CPU usage (cores)",
-      "gridPos": {
-        "x": 0,
-        "y": 94,
-        "w": 8,
-        "h": 8
-      },
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 1,
+            "showPoints": "never",
+            "stacking": {
+              "mode": "normal"
+            }
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 132
+      },
+      "id": 57,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
       "targets": [
         {
-          "refId": "A",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
           "expr": "sum by (instance) (rate(process_cpu_user_seconds_total{job=\"$job\", instance=~\"$instance\"}[$__rate_interval]))",
-          "legendFormat": "{{instance}} user"
+          "legendFormat": "{{instance}} user",
+          "refId": "A"
         },
         {
-          "refId": "B",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
           "expr": "sum by (instance) (rate(process_cpu_system_seconds_total{job=\"$job\", instance=~\"$instance\"}[$__rate_interval]))",
-          "legendFormat": "{{instance}} system"
+          "legendFormat": "{{instance}} system",
+          "refId": "B"
         }
       ],
+      "title": "CPU usage (cores)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
       "fieldConfig": {
         "defaults": {
-          "unit": "none",
           "custom": {
             "fillOpacity": 10,
             "lineWidth": 1,
-            "showPoints": "never",
-            "stacking": {
-              "mode": "normal"
-            }
-          }
+            "showPoints": "never"
+          },
+          "unit": "bytes"
         },
         "overrides": []
       },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 132
+      },
+      "id": 58,
       "options": {
         "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
           "calcs": [
             "mean",
             "max",
             "lastNotNull"
-          ]
+          ],
+          "displayMode": "table",
+          "placement": "bottom"
         },
         "tooltip": {
           "mode": "multi",
           "sort": "desc"
         }
-      }
-    },
-    {
-      "id": 43,
-      "type": "timeseries",
-      "title": "Memory",
-      "gridPos": {
-        "x": 8,
-        "y": 94,
-        "w": 8,
-        "h": 8
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
       },
       "targets": [
         {
-          "refId": "A",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
           "expr": "sum by (instance) (process_resident_memory_bytes{job=\"$job\", instance=~\"$instance\"})",
-          "legendFormat": "{{instance}} RSS"
+          "legendFormat": "{{instance}} RSS",
+          "refId": "A"
         },
         {
-          "refId": "B",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
           "expr": "sum by (instance) (nodejs_heap_size_used_bytes{job=\"$job\", instance=~\"$instance\"})",
-          "legendFormat": "{{instance}} heap used"
+          "legendFormat": "{{instance}} heap used",
+          "refId": "B"
         },
         {
-          "refId": "C",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
           "expr": "sum by (instance) (nodejs_heap_size_total_bytes{job=\"$job\", instance=~\"$instance\"})",
-          "legendFormat": "{{instance}} heap total"
+          "legendFormat": "{{instance}} heap total",
+          "refId": "C"
         },
         {
-          "refId": "D",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
           "expr": "sum by (instance) (nodejs_external_memory_bytes{job=\"$job\", instance=~\"$instance\"})",
-          "legendFormat": "{{instance}} external"
+          "legendFormat": "{{instance}} external",
+          "refId": "D"
         }
       ],
+      "title": "Memory",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
       "fieldConfig": {
         "defaults": {
-          "unit": "bytes",
           "custom": {
             "fillOpacity": 10,
             "lineWidth": 1,
             "showPoints": "never"
-          }
+          },
+          "unit": "s"
         },
         "overrides": []
       },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 132
+      },
+      "id": 59,
       "options": {
         "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
           "calcs": [
             "mean",
             "max",
             "lastNotNull"
-          ]
+          ],
+          "displayMode": "table",
+          "placement": "bottom"
         },
         "tooltip": {
           "mode": "multi",
           "sort": "desc"
         }
-      }
-    },
-    {
-      "id": 44,
-      "type": "timeseries",
-      "title": "Event loop lag",
-      "gridPos": {
-        "x": 16,
-        "y": 94,
-        "w": 8,
-        "h": 8
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
       },
       "targets": [
         {
-          "refId": "A",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
           "expr": "max by (instance) (nodejs_eventloop_lag_p50_seconds{job=\"$job\", instance=~\"$instance\"})",
-          "legendFormat": "{{instance}} p50"
+          "legendFormat": "{{instance}} p50",
+          "refId": "A"
         },
         {
-          "refId": "B",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
           "expr": "max by (instance) (nodejs_eventloop_lag_p99_seconds{job=\"$job\", instance=~\"$instance\"})",
-          "legendFormat": "{{instance}} p99"
+          "legendFormat": "{{instance}} p99",
+          "refId": "B"
         },
         {
-          "refId": "C",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
           "expr": "max by (instance) (nodejs_eventloop_lag_max_seconds{job=\"$job\", instance=~\"$instance\"})",
-          "legendFormat": "{{instance}} max"
+          "legendFormat": "{{instance}} max",
+          "refId": "C"
         }
       ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "s",
-          "custom": {
-            "fillOpacity": 10,
-            "lineWidth": 1,
-            "showPoints": "never"
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
-          "calcs": [
-            "mean",
-            "max",
-            "lastNotNull"
-          ]
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      }
+      "title": "Event loop lag",
+      "type": "timeseries"
     },
     {
-      "id": 45,
-      "type": "timeseries",
-      "title": "GC time / s by instance and kind",
-      "gridPos": {
-        "x": 0,
-        "y": 102,
-        "w": 8,
-        "h": 8
-      },
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "expr": "sum by (instance, kind) (rate(nodejs_gc_duration_seconds_sum{job=\"$job\", instance=~\"$instance\"}[$__rate_interval]))",
-          "legendFormat": "{{instance}} {{kind}}"
-        }
-      ],
       "fieldConfig": {
         "defaults": {
-          "unit": "s",
           "custom": {
             "fillOpacity": 10,
             "lineWidth": 1,
@@ -2696,147 +3495,252 @@
             "stacking": {
               "mode": "normal"
             }
-          }
+          },
+          "unit": "s"
         },
         "overrides": []
       },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 140
+      },
+      "id": 60,
       "options": {
         "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
           "calcs": [
             "mean",
             "max",
             "lastNotNull"
-          ]
+          ],
+          "displayMode": "table",
+          "placement": "bottom"
         },
         "tooltip": {
           "mode": "multi",
           "sort": "desc"
         }
-      }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "sum by (instance, kind) (rate(nodejs_gc_duration_seconds_sum{job=\"$job\", instance=~\"$instance\"}[$__rate_interval]))",
+          "legendFormat": "{{instance}} {{kind}}",
+          "refId": "A"
+        }
+      ],
+      "title": "GC time / s by instance and kind",
+      "type": "timeseries"
     },
     {
-      "id": 46,
-      "type": "timeseries",
-      "title": "Active handles / requests",
-      "gridPos": {
-        "x": 8,
-        "y": 102,
-        "w": 8,
-        "h": 8
-      },
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 1,
+            "showPoints": "never"
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 140
+      },
+      "id": 61,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
       "targets": [
         {
-          "refId": "A",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
           "expr": "sum by (instance) (nodejs_active_handles_total{job=\"$job\", instance=~\"$instance\"})",
-          "legendFormat": "{{instance}} handles"
+          "legendFormat": "{{instance}} handles",
+          "refId": "A"
         },
         {
-          "refId": "B",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
           "expr": "sum by (instance) (nodejs_active_requests_total{job=\"$job\", instance=~\"$instance\"})",
-          "legendFormat": "{{instance}} requests"
+          "legendFormat": "{{instance}} requests",
+          "refId": "B"
         },
         {
-          "refId": "C",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
           "expr": "sum by (instance) (nodejs_active_resources_total{job=\"$job\", instance=~\"$instance\"})",
-          "legendFormat": "{{instance}} resources"
+          "legendFormat": "{{instance}} resources",
+          "refId": "C"
         }
       ],
+      "title": "Active handles / requests",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
           "custom": {
             "fillOpacity": 10,
             "lineWidth": 1,
             "showPoints": "never"
-          }
+          },
+          "unit": "short"
         },
         "overrides": []
       },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 140
+      },
+      "id": 62,
       "options": {
         "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
           "calcs": [
             "mean",
             "max",
             "lastNotNull"
-          ]
+          ],
+          "displayMode": "table",
+          "placement": "bottom"
         },
         "tooltip": {
           "mode": "multi",
           "sort": "desc"
         }
-      }
-    },
-    {
-      "id": 47,
-      "type": "timeseries",
-      "title": "Open file descriptors",
-      "gridPos": {
-        "x": 16,
-        "y": 102,
-        "w": 8,
-        "h": 8
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
       },
       "targets": [
         {
-          "refId": "A",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
           "expr": "sum by (instance) (process_open_fds{job=\"$job\", instance=~\"$instance\"})",
-          "legendFormat": "{{instance}} open"
+          "legendFormat": "{{instance}} open",
+          "refId": "A"
         }
       ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "custom": {
-            "fillOpacity": 10,
-            "lineWidth": 1,
-            "showPoints": "never"
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
-          "calcs": [
-            "mean",
-            "max",
-            "lastNotNull"
-          ]
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      }
+      "title": "Open file descriptors",
+      "type": "timeseries"
     }
-  ]
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": [
+    "1mage",
+    "api"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {},
+        "label": "Data source",
+        "name": "datasource",
+        "query": "prometheus",
+        "type": "datasource"
+      },
+      {
+        "current": {
+          "text": "api",
+          "value": "api"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "label_values(up, job)",
+        "name": "job",
+        "query": {
+          "query": "label_values(up, job)",
+          "refId": "V"
+        },
+        "refresh": 1,
+        "type": "query"
+      },
+      {
+        "allValue": ".*",
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "label_values(up{job=\"$job\"}, instance)",
+        "includeAll": true,
+        "multi": true,
+        "name": "instance",
+        "query": {
+          "query": "label_values(up{job=\"$job\"}, instance)",
+          "refId": "V"
+        },
+        "refresh": 1,
+        "type": "query"
+      },
+      {
+        "allValue": ".*",
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "label_values(http_requests_total{job=\"$job\"}, route)",
+        "includeAll": true,
+        "multi": true,
+        "name": "route",
+        "query": {
+          "query": "label_values(http_requests_total{job=\"$job\"}, route)",
+          "refId": "V"
+        },
+        "refresh": 2,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-3h",
+    "to": "now"
+  },
+  "timezone": "browser",
+  "title": "1mage-api",
+  "uid": "1mage-api"
 }
